@@ -1,3 +1,12 @@
+// This script generates a "docker-compose.yml" file and a "main.kevs" file
+// in the current directory.
+// If no command-line argument is given, then the system will contain 5 nodes
+// You can change that by specifying another value while calling the script:
+//   eg. node create-script.js 15
+//
+// Once created, you just have to call:
+//   eg. docker-compose up
+
 const fs = require('fs');
 const path = require('path');
 const jsYaml = require('js-yaml');
