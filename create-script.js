@@ -47,7 +47,7 @@ for (let count = 0; count < COUNT; count++) {
 	const containerName = `kevoree-${nodeName}`;
 	nodes.push(nodeName);
 	dCompose.services[containerName] = {
-		image: 'kevoree/js:base-mosquitto',
+		image: 'kevoree/js:latest',
 		command: `start -m /root/main.kevs -n ${nodeName}`,
 		volumes: [
 			`${path.resolve(kConst.CONFIG_PATH, '..', 'node_modules')}:/root/.kevoree/node_modules`,
