@@ -1,0 +1,9 @@
+add master, %client%: JavascriptNode/LATEST/LATEST
+add sync: CentralizedWSGroup/LATEST/LATEST
+
+attach * sync
+
+set sync.isMaster/master = 'true'
+set sync.masterNet/%client% = 'docker.link'
+
+network master.docker.link kevoree-master

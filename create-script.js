@@ -13,19 +13,6 @@ const jsYaml = require('js-yaml');
 const kConst = require('kevoree-const');
 
 const DOCKER_COMPOSE_FILE = path.join('docker-compose.yml');
-const KEVSCRIPT_FILE = path.join('main.kevs');
-
-function kevsTpl(nodes) {
-	return `add ${nodes.join(', ')}: JavascriptNode/LATEST/LATEST
-add sync: WSGroup/LATEST/LATEST
-
-attach * sync
-
-set sync.master = 'node0'
-
-network node0.ip.eth0 kevoree-node0
-`;
-}
 
 let nbNodes = 5;
 if (process.argv[2] && process.argv[2].match(/^[\d]+$/)) {
@@ -42,34 +29,37 @@ const dCompose = {
 };
 const nodes = [];
 
+// master services
+dCompose.services['kevoree-master'] = {
+	image: 'kevoree/js:latest',
+	command: 'start -m /root/master.kevs -n master',
+	volumes: [
+		`${path.resolve(kConst.CONFIG_PATH, '..', 'node_modules')}:/root/.kevoree/node_modules`,
+		`${path.resolve('master.kevs')}:/root/master.kevs`
+	]
+};
+
+// clients services
 for (let count = 0; count < COUNT; count++) {
-	const nodeName = `node${count}`;
+	const nodeName = `client${count}`;
 	const containerName = `kevoree-${nodeName}`;
 	nodes.push(nodeName);
 	dCompose.services[containerName] = {
 		image: 'kevoree/js:latest',
-		command: `start -m /root/main.kevs -n ${nodeName}`,
+		command: `start -m /root/client.kevs -n ${nodeName} --ctxVar client=${nodeName}`,
 		volumes: [
 			`${path.resolve(kConst.CONFIG_PATH, '..', 'node_modules')}:/root/.kevoree/node_modules`,
-			`${path.resolve('main.kevs')}:/root/main.kevs`
+			`${path.resolve('client.kevs')}:/root/client.kevs`
 		]
 	};
 
 	if (count > 0) {
 		dCompose.services[containerName].links = [
-			'kevoree-node0'
+			'kevoree-master'
 		];
 	}
 }
 
-// write main.kevs
-fs.writeFileSync(
-	KEVSCRIPT_FILE,
-	kevsTpl(nodes),
-	{ encoding: 'utf8' }
-);
-
-console.log(`File "${KEVSCRIPT_FILE}" written.`);
 
 // write docker-compose.yml
 fs.writeFileSync(

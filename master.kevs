@@ -1,0 +1,10 @@
+add master: JavascriptNode/LATEST/LATEST
+add sync: CentralizedWSGroup/LATEST/LATEST
+
+attach master sync
+
+set sync.isMaster/master = 'true'
+
+set master.logLevel = 'DEBUG'
+
+network master.docker.link kevoree-master
